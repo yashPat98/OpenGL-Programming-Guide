@@ -1,0 +1,4 @@
+#include "Antialiased.h"
+
+MYICON ICON YIP.ico
+
