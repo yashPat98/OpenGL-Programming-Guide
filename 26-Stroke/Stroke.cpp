@@ -69,7 +69,7 @@ CP Rdata[] = {
 CP Sdata[] = {
     {0.0f, 1.0f, PT}, {1.0f, 0.0f, PT}, {4.0f, 0.0f, PT}, {5.0f, 1.0f, PT},
     {5.0f, 4.0f, PT}, {4.0f, 5.0f, PT}, {1.0f, 5.0f, PT}, {0.0f, 6.0f, PT},
-    {0.0f, 9.0f, PT}, {1.0f, 10.0f, PT}, {4.0f, 10.0f, PT}, {5.0f, 9.0f, END},
+    {0.0f, 9.0f, PT}, {1.0f, 10.0f, PT}, {4.0f, 10.0f, PT}, {5.0f, 9.0f, END}
 };
 
 // --- WinMain() - entry point function ---
