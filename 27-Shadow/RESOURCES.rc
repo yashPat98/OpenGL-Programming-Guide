@@ -1,0 +1,4 @@
+#include "Shadow.h"
+
+MYICON ICON YIP.ico
+GROUND_BITMAP BITMAP textures/ground.bmp
