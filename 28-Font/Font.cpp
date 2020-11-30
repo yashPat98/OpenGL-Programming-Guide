@@ -1,7 +1,7 @@
 // ------------------------
 // Name :        Yash Patel
-// Assignment :  Shadow Assignment 
-// Date :        29-11-2020
+// Assignment :  Complete Font using Display lists 
+// Date :        01-12-2020
 // ------------------------
 
 // --- Headers ---
@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <gl/gl.h>
 #include <gl/GLU.h>
-#include "Shadow.h"
+#include "Font.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -35,16 +35,37 @@ WINDOWPLACEMENT wpPrev  = { sizeof(WINDOWPLACEMENT) };   //window placement befo
 bool gbFullscreen       = false;                         //toggling fullscreen
 bool gbActiveWindow     = false;                         //render only if window is active
 
-GLuint groundList;                                       //ground display list
-GLuint ground_texture;                                   //ground texture
-GLuint treeList;                                         //tree display list
+GLuint fontOffset;
+GLubyte space[]         = {0x00, 0x00, 0x00, 0x00, 0x00, 
+                           0x00, 0x00, 0x00, 0x00, 0x00, 
+                           0x00, 0x00, 0x00}; 
+GLubyte letters[][13]   = {{0x00, 0x00, 0xc3, 0xc3, 0xc3, 0xc3, 0xff, 0xc3, 0xc3, 0xc3, 0x66, 0x3c, 0x18}, 
+                           {0x00, 0x00, 0xfe, 0xc7, 0xc3, 0xc3, 0xc7, 0xfe, 0xc7, 0xc3, 0xc3, 0xc7, 0xfe}, 
+                           {0x00, 0x00, 0x7e, 0xe7, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xe7, 0x7e}, 
+                           {0x00, 0x00, 0xfc, 0xce, 0xc7, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xc7, 0xce, 0xfc}, 
+                           {0x00, 0x00, 0xff, 0xc0, 0xc0, 0xc0, 0xc0, 0xfc, 0xc0, 0xc0, 0xc0, 0xc0, 0xff}, 
+                           {0x00, 0x00, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xfc, 0xc0, 0xc0, 0xc0, 0xff}, 
+                           {0x00, 0x00, 0x7e, 0xe7, 0xc3, 0xc3, 0xcf, 0xc0, 0xc0, 0xc0, 0xc0, 0xe7, 0x7e}, 
+                           {0x00, 0x00, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xff, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3}, 
+                           {0x00, 0x00, 0x7e, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x7e}, 
+                           {0x00, 0x00, 0x7c, 0xee, 0xc6, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06, 0x06}, 
+                           {0x00, 0x00, 0xc3, 0xc6, 0xcc, 0xd8, 0xf0, 0xe0, 0xf0, 0xd8, 0xcc, 0xc6, 0xc3}, 
+                           {0x00, 0x00, 0xff, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0}, 
+                           {0x00, 0x00, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xdb, 0xff, 0xff, 0xe7, 0xc3}, 
+                           {0x00, 0x00, 0xc7, 0xc7, 0xcf, 0xcf, 0xdf, 0xdb, 0xfb, 0xf3, 0xf3, 0xe3, 0xe3}, 
+                           {0x00, 0x00, 0x7e, 0xe7, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xe7, 0x7e}, 
+                           {0x00, 0x00, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xfe, 0xc7, 0xc3, 0xc3, 0xc7, 0xfe}, 
+                           {0x00, 0x00, 0x3f, 0x6e, 0xdf, 0xdb, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0x66, 0x3c}, 
+                           {0x00, 0x00, 0xc3, 0xc6, 0xcc, 0xd8, 0xf0, 0xfe, 0xc7, 0xc3, 0xc3, 0xc7, 0xfe}, 
+                           {0x00, 0x00, 0x7e, 0xe7, 0x03, 0x03, 0x07, 0x7e, 0xe0, 0xc0, 0xc0, 0xe7, 0x7e}, 
+                           {0x00, 0x00, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0xff}, 
+                           {0x00, 0x00, 0x7e, 0xe7, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3}, 
+                           {0x00, 0x00, 0x18, 0x3c, 0x3c, 0x66, 0x66, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3}, 
+                           {0x00, 0x00, 0xc3, 0xe7, 0xff, 0xff, 0xdb, 0xdb, 0xc3, 0xc3, 0xc3, 0xc3, 0xc3}, 
+                           {0x00, 0x00, 0xc3, 0x66, 0x66, 0x3c, 0x3c, 0x18, 0x3c, 0x3c, 0x66, 0x66, 0xc3}, 
+                           {0x00, 0x00, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x3c, 0x3c, 0x66, 0x66, 0xc3}, 
+                           {0x00, 0x00, 0xff, 0xc0, 0xc0, 0x60, 0x30, 0x7e, 0x0c, 0x06, 0x03, 0x03, 0xff}};
 
-GLfloat lightPosition[] = {1.0f, 1.0f, 1.0f, 1.0f};
-GLfloat lightAmbient[]  = {0.1f, 0.1f, 0.1f, 1.0f};
-GLfloat lightDiffuse[]  = {0.7f, 0.7f, 0.7f, 1.0f};
-GLfloat lightSpecular[] = {0.7f, 0.7f, 0.7f, 1.0f}; 
-
-GLfloat shadowMat[16];
 
 // --- WinMain() - entry point function ---
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int iCmdShow)
@@ -96,7 +117,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
     //create window
     hwnd = CreateWindowEx(WS_EX_APPWINDOW,
         szAppName,
-        TEXT("OpenGL : Shadow"),
+        TEXT("OpenGL : Font"),
         WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE,
         (cxScreen - WIN_WIDTH) / 2,
         (cyScreen - WIN_HEIGHT) / 2,
@@ -255,11 +276,7 @@ void Initialize(void)
 {
     //function prototypes
     void Resize(int, int);
-    bool loadGLTexture(GLuint *texture, TCHAR ResourceID[]);
-    void RenderGround(void);
-    void RenderTree(bool bShadow);
-    void ShadowMatrix(float *proj, const float *planeEq, const float *lightPos);
-    void GetPlaneEquation(float *planeEq, const float *p1, const float *p2, const float *p3);
+    void makeRasterFont(void);
 
     //variable declaration
     PIXELFORMATDESCRIPTOR pfd;
@@ -280,7 +297,6 @@ void Initialize(void)
     pfd.cBlueBits   = 8;
     pfd.cGreenBits  = 8;
     pfd.cAlphaBits  = 8;
-    pfd.cDepthBits  = 32;
 
     //choose required pixel format from device context
     iPixelFormatIndex = ChoosePixelFormat(ghdc, &pfd);
@@ -312,12 +328,6 @@ void Initialize(void)
 
     // --- Setup Render Scene ---
 
-    //variable declaration
-    float point1[] = {0.0f, -0.4f, 0.0f};
-    float point2[] = {10.0f, -0.4f, 0.0f};
-    float point3[] = {5.0f, -0.4f, -5.0f};
-    float planeEquation[4];
-
     //set clearing color
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -325,182 +335,31 @@ void Initialize(void)
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glShadeModel(GL_SMOOTH);
 
-    //depth
-    glClearDepth(1.0f);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-
-    //back face culling
-    glCullFace(GL_BACK);
-    glEnable(GL_CULL_FACE);
-
-    //enable lighting and material properties
-    glEnable(GL_LIGHTING);
-
-    //set up light 1
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightAmbient);
-    glLightfv(GL_LIGHT1, GL_AMBIENT, lightAmbient);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, lightDiffuse);
-    glLightfv(GL_LIGHT1, GL_SPECULAR, lightSpecular);
-    glEnable(GL_LIGHT1);
-
-    //enable color tracking
-    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-    glEnable(GL_COLOR_MATERIAL);
-
-    //enable texture memory
-    glEnable(GL_TEXTURE_2D);
-
-    //load textures
-    loadGLTexture(&ground_texture, MAKEINTRESOURCE(GROUND_BITMAP));
-
-    //create and initialize display lists
-    groundList = glGenLists(1);
-    glNewList(groundList, GL_COMPILE);
-        RenderGround();
-    glEndList();
-
-    treeList = glGenLists(1);
-    glNewList(treeList, GL_COMPILE);
-        RenderTree(false);
-    glEndList();
-
-    //construct shadow matrix
-    GetPlaneEquation(planeEquation, point1, point2, point3);
-    ShadowMatrix(shadowMat, planeEquation, lightPosition);
+    makeRasterFont();
 
     //warm-up call to Resize()
     Resize(WIN_WIDTH, WIN_HEIGHT);
 }
 
-// --- loadGLTexture() - loads texture from resource ---
-bool loadGLTexture(GLuint *texture, TCHAR ResourceID[])
+void makeRasterFont(void)
 {
     //variable declaration
-    bool bResult = false;
-    HBITMAP hBitmap = NULL;
-    BITMAP bmp;
+    GLuint i, j;
 
     //code
-    hBitmap = (HBITMAP)LoadImage(GetModuleHandle(NULL), ResourceID, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
-    if(hBitmap)
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    fontOffset = glGenLists(128);
+    for(i = 0, j = 'A'; i < 26; i++, j++)
     {
-        bResult = true;
-        GetObject(hBitmap, sizeof(BITMAP), &bmp);
-
-        //generate texture object
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        glGenTextures(1, texture);
-        glBindTexture(GL_TEXTURE_2D, *texture);
-
-        //setting texture parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-        //push the data to texture memory
-        gluBuild2DMipmaps(GL_TEXTURE_2D, 3, bmp.bmWidth, bmp.bmHeight, GL_BGR_EXT, GL_UNSIGNED_BYTE, bmp.bmBits);
-    
-        //free bitmap object
-        DeleteObject(hBitmap);
-        hBitmap = NULL;
+        glNewList(fontOffset + j, GL_COMPILE);
+            glBitmap(8, 13, 0.0f, 2.0f, 10.0f, 0.0f, letters[i]);
+        glEndList();
     }
 
-    return (bResult);
-}
-
-void RenderGround(void)
-{
-    GLfloat fExtent = 20.0f;
-    GLfloat fStep = 1.0f;
-    GLfloat y = -0.4f;
-    GLfloat iStrip, iRun;
-    GLfloat s = 0.0f;
-    GLfloat t = 0.0f;
-    GLfloat texStep = 1.0f / (fExtent * 0.055f);
-
-    glBindTexture(GL_TEXTURE_2D, ground_texture);
-    glColor3f(1.0f, 1.0f, 1.0f);
-    for(iStrip = -fExtent; iStrip <= fExtent; iStrip += fStep)
-    {
-        t = 0.0f;
-        glBegin(GL_TRIANGLE_STRIP);
-            for(iRun = fExtent; iRun >= -fExtent; iRun -= fStep)
-            {
-                glNormal3f(0.0f, 1.0f, 0.0f);
-
-                glTexCoord2f(s, t);
-                glVertex3f(iStrip, y, iRun);
-
-                glTexCoord2f(s + texStep, t);
-                glVertex3f(iStrip + fStep, y, iRun);
-
-                t += texStep;
-            }
-        glEnd();
-        s += texStep;
-    }
-}
-
-void RenderTree(bool bShadow)
-{
-    //variable declaration
-    GLUquadric *quadric = NULL;
-
-    //code
-    glBindTexture(GL_TEXTURE_2D, NULL);
-    glColor3f(0.0f, 0.0f, 0.0f);
-
-    glPushMatrix();
-        //main branch
-        glTranslatef(0.0f, 0.1f, 0.0f);
-        glScalef(0.5f, 0.5f, 0.5f);
-
-        if(!bShadow)
-            glColor3f(0.55294f, 0.38039f, 0.258823f);
-        
-        glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-        quadric = gluNewQuadric();
-        gluQuadricNormals(quadric, GLU_SMOOTH);
-        gluCylinder(quadric, 0.2f, 0.25f, 1.0f, 6, 2);
-        
-        //leaves
-        if(!bShadow)
-            glColor3f(0.0f, 0.333333f, 0.0f);
-        glTranslatef(0.0f, 0.0f, -0.5f);
-        quadric = gluNewQuadric();
-        gluQuadricNormals(quadric, GLU_SMOOTH);
-        gluCylinder(quadric, 0.7f, 1.0f, 0.6f, 10, 2);
-
-        glTranslatef(0.0f, 0.0f, -0.5f);
-        quadric = gluNewQuadric();
-        gluQuadricNormals(quadric, GLU_SMOOTH);
-        gluCylinder(quadric, 0.6f, 0.9f, 0.6f, 10, 2);
-
-        glTranslatef(0.0f, 0.0f, -0.5f);
-        quadric = gluNewQuadric();
-        gluQuadricNormals(quadric, GLU_SMOOTH);
-        gluCylinder(quadric, 0.5f, 0.8f, 0.6f, 10, 2);
-
-        glTranslatef(0.0f, 0.0f, -0.5f);
-        quadric = gluNewQuadric();
-        gluQuadricNormals(quadric, GLU_SMOOTH);
-        gluCylinder(quadric, 0.4f, 0.7f, 0.6f, 10, 2);
-
-        glTranslatef(0.0f, 0.0f, -0.5f);
-        quadric = gluNewQuadric();
-        gluQuadricNormals(quadric, GLU_SMOOTH);
-        gluCylinder(quadric, 0.3f, 0.6f, 0.6f, 10, 2);
-
-        glTranslatef(0.0f, 0.0f, -1.0f);
-        quadric = gluNewQuadric();
-        gluQuadricNormals(quadric, GLU_SMOOTH);
-        gluCylinder(quadric, 0.0f, 0.5f, 1.2f, 10, 2);
-    glPopMatrix();
-
-    gluDeleteQuadric(quadric);
-    quadric = NULL;
+    glNewList(fontOffset + ' ', GL_COMPILE);
+        glBitmap(8, 13, 0.0f, 2.0f, 10.0f ,0.0f, space);
+    glEndList();
 }
 
 // --- Resize() --- 
@@ -515,143 +374,36 @@ void Resize(int width, int height)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
+    glOrtho(0.0, (GLdouble)width, 0.0, (GLdouble)height, -1.0, 1.0);
 }
 
 // --- Display() - renders scene ---
 void Display(void)
 {
-    //variable declaration
-    static float speed = 0.0f;
-    float x = 10.0f * cos(speed);
-    float z = 10.0f * sin(speed);
+    //function declaration
+    void printString(char *s);
 
     //code
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     
-    gluLookAt((GLfloat)x, 0.0f, (GLfloat)z, 
-              0.0f, 0.0f, 0.0f,
-              0.0f, 1.0f, 0.0f);
-
-    glPushMatrix();
-        glLightfv(GL_LIGHT1, GL_POSITION, lightPosition);
-        
-        glCallList(groundList);
-
-        //draw shadow first
-        glPushMatrix();
-            glDisable(GL_DEPTH_TEST);
-            glDisable(GL_LIGHTING);
-            glDisable(GL_TEXTURE_2D);
-            
-            glMultMatrixf(shadowMat);
-            RenderTree(true);
-
-            glEnable(GL_LIGHTING);
-            glEnable(GL_TEXTURE_2D);
-            glEnable(GL_DEPTH_TEST);
-        glPopMatrix();
-        
-        glCallList(treeList);
-    glPopMatrix();
-    
-    //update 
-    speed += 0.001f;
-    if(speed >= 360.0f)
-        speed = 0.0f;
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glRasterPos2i(20, 60);
+    printString("THE QUICK BROWN FOX JUMPS");
+    glRasterPos2i(20, 40);
+    printString("OVER A LAZY DOG");
 
     SwapBuffers(ghdc);
 }
 
-void ShadowMatrix(float *proj, const float *planeEq, const float *lightPos)
+void printString(char *s)
 {
-    //variable declaration
-    float a = planeEq[0];
-    float b = planeEq[1];
-    float c = planeEq[2];
-    float d = planeEq[3];
-
-    float dx = -lightPos[0];
-    float dy = -lightPos[1];
-    float dz = -lightPos[2];
-
-    //code
-    //fill the projction matrix
-    proj[0] = b * dy + c * dz;
-    proj[1] = -a * dy;
-    proj[2] = -a * dz;
-    proj[3] = 0.0f;
-
-    proj[4] = -b * dx;
-    proj[5] = a * dx + c * dz;
-    proj[6] = -b * dz;
-    proj[7] = 0.0f;
-
-    proj[8] = -c * dx;
-    proj[9] = -c * dy;
-    proj[10] = a * dx + b * dy;
-    proj[11] = 0.0f;
-
-    proj[12] = -d * dx;
-    proj[13] = -d * dy;
-    proj[14] = -d * dz;
-    proj[15] = a * dx + b * dy + c * dz;
-}
-
-void GetPlaneEquation(float *planeEq, const float *p1, const float *p2, const float *p3)
-{
-    //function declaration
-    void CrossProduct(const float vector1[], const float vector2[], float out[3]);
-
-    //variable declaration
-    float vec1[3];
-    float vec2[3];
-
-    //code
-    //vector1 = point3 - point1
-    vec1[0] = p3[0] - p1[0];
-    vec1[1] = p3[1] - p1[1];
-    vec1[2] = p3[2] - p1[2];
-
-    //vector2 = point2 - point1
-    vec2[0] = p2[0] - p1[0];
-    vec2[1] = p2[1] - p1[1];
-    vec2[2] = p2[2] - p1[2];
-
-    //unit normal to plane
-    CrossProduct(vec1, vec2, planeEq);
-
-    //substitute any of point to get value of constat d
-    planeEq[3] = -(planeEq[0] * p3[0] + planeEq[1] * p3[1] + planeEq[2] * p3[2]);
-}
-
-void CrossProduct(const float vector1[], const float vector2[], float out[3])
-{
-    //function declaration 
-    void Normalize(float vector[]);
-
-    //code
-    out[0] = vector1[1] * vector2[2] - vector1[2] * vector2[1];
-    out[1] = vector1[2] * vector2[0] - vector1[0] * vector2[2];
-    out[2] = vector1[0] * vector2[1] - vector1[1] * vector2[0];
-
-    Normalize(out);
-}
-
-void Normalize(float vector[])
-{
-    //code
-    GLfloat dist = sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
-
-    if(dist == 0.0f)
-        return;
-    
-    vector[0] = vector[0] / dist;
-    vector[1] = vector[1] / dist;
-    vector[2] = vector[2] / dist;
+    glPushAttrib(GL_LIST_BIT);
+    glListBase(fontOffset);
+    glCallLists(strlen(s), GL_UNSIGNED_BYTE, (GLubyte *)s);
+    glPopAttrib();
 }
 
 // --- UnInitialize() ---
@@ -673,13 +425,6 @@ void UnInitialize(void)
     
         ShowCursor(true);
     }
-
-    //delete display lists
-    glDeleteLists(groundList, 1);
-    glDeleteLists(treeList, 1);
-
-    //delete textures
-    glDeleteTextures(1, &ground_texture);
 
     if(wglGetCurrentContext() == ghrc)
     {
