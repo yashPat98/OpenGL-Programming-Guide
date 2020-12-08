@@ -1,0 +1,4 @@
+#include "Image.h"
+
+MYICON ICON YIP.ico
+
