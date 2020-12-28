@@ -1,0 +1,4 @@
+#include "Texsub.h"
+
+MYICON ICON YIP.ico
+

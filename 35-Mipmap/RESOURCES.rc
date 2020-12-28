@@ -1,0 +1,4 @@
+#include "Mipmap.h"
+
+MYICON ICON YIP.ico
+
