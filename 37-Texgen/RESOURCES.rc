@@ -1,0 +1,4 @@
+#include "Texgen.h"
+
+MYICON ICON YIP.ico
+
